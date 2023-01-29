@@ -53,9 +53,19 @@ public class StorageController {
         return storageRepository.findByIsbn(isbn);
     }
 
+    // create a book in storage
+    @PostMapping("/storage")
+    public Storage createStorage(@RequestBody Storage storage) {
+        return ingestBook(storage);
+    }
+
     // add book to storage
     @PostMapping("/storage/ingest-book")
     public Storage addBooksToStorage(@RequestBody Storage storage) {
+        return ingestBook(storage);
+    }
+
+    private Storage ingestBook(Storage storage) {
         this.verifyBook(storage.getIsbn());
         simulateHardWork();
 
