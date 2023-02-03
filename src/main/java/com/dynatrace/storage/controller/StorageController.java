@@ -37,6 +37,7 @@ public class StorageController extends HardworkingController {
     public Storage getStorageItemById(@PathVariable Long id) {
         Optional<Storage> storage = storageRepository.findById(id);
         if (storage.isEmpty()) {
+            logger.error("Book is not found. ID = " + id);
             throw new ResourceNotFoundException("Book is not found in the storage");
         }
         return storage.get();
@@ -90,7 +91,9 @@ public class StorageController extends HardworkingController {
         Book book = bookRepository.getBookByISBN(storage.getIsbn());
         Storage storageDb = storageRepository.findByIsbn(storage.getIsbn());
         if (null == book || storageDb.getQuantity() < storage.getQuantity()) {
-            throw new InsufficientResourcesException("Insufficient books in the storage");
+            InsufficientResourcesException ex = new InsufficientResourcesException("Insufficient books in the storage");
+            logger.error(ex.getMessage());
+            throw ex;
         }
         storageDb.setQuantity(storageDb.getQuantity() - storage.getQuantity());
         logger.debug("Sold book " + storage.getIsbn());
@@ -106,7 +109,9 @@ public class StorageController extends HardworkingController {
 
         Optional<Storage> storageDb = storageRepository.findById(id);
         if (storageDb.isEmpty() || storageDb.get().getId() != storage.getId()) {
-            throw new ResourceNotFoundException("Book is not found, ISBN: " + storage.getIsbn());
+            ResourceNotFoundException ex = new ResourceNotFoundException("Book is not found, ISBN: " + storage.getIsbn());
+            logger.error(ex.getMessage());
+            throw ex;
         }
         return storageRepository.save(storage);
     }
@@ -126,7 +131,9 @@ public class StorageController extends HardworkingController {
     private void verifyBook(String isbn) {
         Book book = bookRepository.getBookByISBN(isbn);
         if (null == book) {
-            throw new ResourceNotFoundException("Book not found by isbn " + isbn);
+            ResourceNotFoundException ex = new ResourceNotFoundException("Book not found by isbn " + isbn);
+            logger.error(ex.getMessage());
+            throw ex;
         }
         logger.debug(book.getIsbn());
     }
