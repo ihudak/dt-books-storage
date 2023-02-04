@@ -38,7 +38,9 @@ public class StorageController extends HardworkingController {
         Optional<Storage> storage = storageRepository.findById(id);
         if (storage.isEmpty()) {
             logger.error("Book is not found. ID = " + id);
-            throw new ResourceNotFoundException("Book is not found in the storage");
+            ResourceNotFoundException ex = new ResourceNotFoundException("Book is not found in the storage");
+            logger.error(ex.getMessage());
+            throw ex;
         }
         return storage.get();
     }
