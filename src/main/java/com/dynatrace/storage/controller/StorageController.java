@@ -23,8 +23,8 @@ public class StorageController extends HardworkingController {
     @Autowired
     private BookRepository bookRepository;
     @Autowired
-    ConfigRepository configRepository;
-    Logger logger = LoggerFactory.getLogger(StorageController.class);
+    private ConfigRepository configRepository;
+    private Logger logger = LoggerFactory.getLogger(StorageController.class);
 
     // get all storage items
     @GetMapping("")
@@ -65,7 +65,7 @@ public class StorageController extends HardworkingController {
     public Storage addBooksToStorage(@RequestBody Storage storage) {
         simulateHardWork();
         simulateCrash();
-        logger.debug("Ingesting book " + storage.getIsbn());
+        logger.debug("Ingesting book " + storage.getIsbn() + " qty: " + storage.getQuantity());
         return ingestBook(storage);
     }
 
@@ -89,15 +89,26 @@ public class StorageController extends HardworkingController {
         simulateHardWork();
         simulateCrash();
         this.verifyBook(storage.getIsbn());
-
         Book book = bookRepository.getBookByISBN(storage.getIsbn());
         Storage storageDb = storageRepository.findByIsbn(storage.getIsbn());
-        if (null == book || storageDb.getQuantity() < storage.getQuantity()) {
-            InsufficientResourcesException ex = new InsufficientResourcesException("Insufficient books in the storage");
+        if (book == null) {
+            logger.error("Trying to sell a book that is not registered " + storage.getIsbn());
+        } else if (storageDb == null) {
+            logger.error("Trying to sell a book that is not in the inventory " + storage.getIsbn());
+        } else {
+            logger.info("Selling book " + storage.getIsbn() + " qty: " + storage.getQuantity() + " while inventory has " + storageDb.getQuantity());
+        }
+        if (null == book || storageDb == null || storageDb.getQuantity() < storage.getQuantity()) {
+            InsufficientResourcesException ex = new InsufficientResourcesException("Insufficient books in the storage, ISBN " + storage.getIsbn());
             logger.error(ex.getMessage());
             throw ex;
         }
-        storageDb.setQuantity(storageDb.getQuantity() - storage.getQuantity());
+        try {
+            storageDb.setQuantity(storageDb.getQuantity() - storage.getQuantity());
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw new InsufficientResourcesException(exception.getMessage());
+        }
         logger.debug("Sold book " + storage.getIsbn());
         return storageRepository.save(storageDb);
     }

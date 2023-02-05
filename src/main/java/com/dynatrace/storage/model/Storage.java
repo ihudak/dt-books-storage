@@ -50,7 +50,7 @@ public class Storage {
         return isbn;
     }
 
-    public void setIsbn(String isbn) {
+    public void setIsbn(String isbn) throws BadRequestException {
         if (isbn.length() != 13 || !isbn.matches("^\\d{13}$")) {
             throw new BadRequestException("ISBN must be a 13-digits value");
         }
@@ -62,8 +62,8 @@ public class Storage {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        if (quantity <= 0) {
+    public void setQuantity(int quantity) throws BadRequestException {
+        if (quantity < 0) {
             throw new BadRequestException("Quantity must be greater than zero. Got: " + quantity);
         }
         this.quantity = quantity;
