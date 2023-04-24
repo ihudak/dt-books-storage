@@ -47,7 +47,7 @@ public class StorageController extends HardworkingController {
 
     // get all users who have the book in their cart
     @GetMapping("/findByISBN")
-    public Storage getCartsByISBN(@RequestParam String isbn) {
+    public Storage getStorageItemByISBN(@RequestParam String isbn) {
         this.verifyBook(isbn);
         return storageRepository.findByIsbn(isbn);
     }
@@ -137,7 +137,7 @@ public class StorageController extends HardworkingController {
 
     // delete all books
     @DeleteMapping("/delete-all")
-    public void deleteAllBooks() {
+    public void deleteAllBooksFromStorage() {
         storageRepository.deleteAll();
     }
 
