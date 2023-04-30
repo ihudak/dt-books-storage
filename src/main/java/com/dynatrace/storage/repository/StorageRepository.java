@@ -14,6 +14,6 @@ public interface StorageRepository extends JpaRepository<Storage, Long> {
     Storage findByIsbn(String isbn);
     @Modifying
     @Transactional
-    @Query(value = "TRUNCATE TABLE orders", nativeQuery = true)
+    @Query(value = "TRUNCATE TABLE storage", nativeQuery = true)
     void truncateTable();
 }
