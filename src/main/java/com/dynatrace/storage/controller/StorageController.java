@@ -138,7 +138,7 @@ public class StorageController extends HardworkingController {
     // delete all books
     @DeleteMapping("/delete-all")
     public void deleteAllBooksFromStorage() {
-        storageRepository.deleteAll();
+        storageRepository.truncateTable();
     }
 
     private void verifyBook(String isbn) {
